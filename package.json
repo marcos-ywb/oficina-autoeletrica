@@ -8,8 +8,19 @@
     "start": "next start"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.1.17",
+    "bcryptjs": "^3.0.3",
+    "flowbite": "^4.0.1",
+    "flowbite-react": "^0.12.10",
+    "imask": "^7.6.1",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.15.3",
     "next": "16.0.3",
+    "postcss": "^8.5.6",
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "react-hot-toast": "^2.6.0",
+    "react-imask": "^7.6.1",
+    "tailwindcss": "^4.1.17"
   }
 }
