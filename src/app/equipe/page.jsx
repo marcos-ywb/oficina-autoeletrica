@@ -162,6 +162,7 @@ export default function Equipe() {
                                     actions={actions}
                                     onModalControl={handleModalControl}
                                     filters={filters}
+                                    loading={loading}
                                 />
                             </div>
 

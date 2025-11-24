@@ -417,6 +417,7 @@ export default function Veiculos() {
                                     onModalControl={handleModalControl}
                                     onAddClick={handleAddVeiculo}
                                     openViewModal={handleOpenViewVeiculo}
+                                    loading={loading}
                                 />
                             </div>
 

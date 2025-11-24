@@ -497,6 +497,7 @@ export default function Clientes() {
                                         active: "Ativos"
                                     }}
                                     openViewModal={handleOpenViewModal}
+                                    loading={loading}
                                 />
                             </div>
 

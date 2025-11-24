@@ -51,17 +51,9 @@ export default function Servicos() {
 
 
 
+                            <div className="px-8 mb-10">
 
-
-
-
-
-
-
-
-
-
-                            {/* Conteudo */}
+                            </div>
 
 
 
