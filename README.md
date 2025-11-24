@@ -158,8 +158,7 @@ Este projeto está licenciado sob a **MIT License**.
 ## Contato e Equipe
 
 ### Colaboradores
-- **Marcos Mello** ([marcos-ywb](https://github.com/marcos-ywb))  
-  Responsável pelo desenvolvimento da aplicação, arquitetura do projeto, integração com banco de dados, funcionalidades principais e manutenção do código.
+- **Marcos Mello** ([marcos-ywb](https://github.com/marcos-ywb)) — Responsável pelo desenvolvimento da aplicação, arquitetura do projeto, integração com banco de dados, funcionalidades principais e manutenção do código.
 - **João Vitor Gonçalves** ([joaovitgo](https://github.com/joaovitgo)) — Design do front-end, criação da interface do usuário (UI) e experiência do usuário (UX).  
 - **Pedro Vinicius** ([Dark188](https://github.com/Dark188)) — Design do front-end, desenvolvimento de UI e otimização da experiência do usuário (UX).  
 - **Jéferson Alves** ([jEFF-AS](https://github.com/jEFF-AS)) — Gestão do projeto e desenvolvimento de consultas SQL e estrutura de banco de dados.  
