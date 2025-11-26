@@ -10,6 +10,9 @@ CREATE TABLE funcionarios (
     senha VARCHAR(255) NOT NULL,
     cargo ENUM('Administrador', 'Funcionario') NOT NULL,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    demissao_em TIMESTAMP DEFAULT NULL,
+    primeiro_acesso BOOLEAN DEFAULT TRUE,
+    ativo BOOLEAN DEFAULT TRUE,
     PRIMARY KEY(funcionario_id)
 );
 
@@ -76,3 +79,21 @@ CREATE TABLE pagamentos (
     PRIMARY KEY(pagamento_id),
     FOREIGN KEY(servico_id) REFERENCES servicos(servico_id)
 );
+
+
+DELIMITER $$
+
+CREATE TRIGGER set_demissao
+BEFORE UPDATE ON funcionarios
+FOR EACH ROW
+BEGIN
+    IF NEW.ativo = 0 AND OLD.ativo = 1 THEN
+        SET NEW.demissao_em = CURRENT_TIMESTAMP;
+    END IF;
+
+    IF NEW.ativo = 1 AND OLD.ativo = 0 THEN
+        SET NEW.demissao_em = NULL;
+    END IF;
+END$$
+
+DELIMITER ;

@@ -1,6 +1,13 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import { IMaskInput } from "react-imask";
+import {
+    Tooltip,
+    TooltipTrigger,
+    TooltipContent,
+    TooltipProvider,
+} from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 export default function Form({ mode, initialData = {}, fields, onSubmit }) {
     const [formData, setFormData] = useState(initialData);
@@ -92,14 +99,28 @@ export default function Form({ mode, initialData = {}, fields, onSubmit }) {
                 <div key={field.name} className="mb-5">
                     <label
                         htmlFor={field.name}
-                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                        className="flex items-center gap-1 mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
                         {field.label}
+
+                        {field.required && (
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <span className="text-red-500 cursor-pointer">
+                                            <Info className="w-4 h-4" />
+                                        </span>
+                                    </TooltipTrigger>
+
+                                    <TooltipContent side="right">
+                                        <p>Campo obrigatório</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        )}
                     </label>
 
-                    {/* ------------------------------- */}
-                    {/* SELECT COM BUSCA (search-select) */}
-                    {/* ------------------------------- */}
+
                     {field.type === "search-select" ? (
                         <div className="relative" ref={dropdownRef}>
                             <input
@@ -239,10 +260,11 @@ export default function Form({ mode, initialData = {}, fields, onSubmit }) {
                             id={field.name}
                             value={formData[field.name] || ""}
                             onChange={handleChange}
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+                            disabled={field.disabled}
+                            className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
                                        focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 
                                        dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
-                                       dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                       dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${field.disabled ? "cursor-not-allowed" : ""}`}
                             placeholder={field.placeholder}
                             autoComplete={field.autoComplete === false ? "off" : "on"}
                             {...(field.required ? { required: true } : {})}

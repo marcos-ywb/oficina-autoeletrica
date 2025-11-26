@@ -21,6 +21,7 @@ export async function GET() {
             
             FROM clientes c
             LEFT JOIN enderecos e ON e.cliente_id = c.cliente_id
+            ORDER BY c.cliente_id DESC
         `);
 
     const result = rows.map((row) => ({

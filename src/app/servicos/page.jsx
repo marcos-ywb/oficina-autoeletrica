@@ -1,9 +1,15 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef, act } from "react";
 
 import Navbar from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
+import Table from "@/components/Table";
+import Form from "@/components/Form";
+import ScrollStyle from "@/components/ScrollStyle";
+
+import { toast } from "react-hot-toast";
+import { formatCurrency, formatDate } from "@/utils/formatters";
 
 import FlowbiteInit from "../FlowbiteInit";
 
@@ -15,12 +21,81 @@ export default function Servicos() {
         return () => clearTimeout(timer);
     }, []);
 
+    const [loading, setLoading] = useState(false);
+    const modalControl = useRef(null);
+    const [data, setData] = useState([]);
+    const columns = [
+        { key: "servico_id", label: "ID" },
+
+        // Veículo
+        { key: "marca", label: "Marca" },
+        { key: "modelo", label: "Modelo" },
+        { key: "placa", label: "Placa" },
+
+        // Funcionário
+        { key: "funcionario_nome", label: "Funcionário" },
+
+        // Status e datas
+        { key: "status", label: "Status" },
+        { key: "data_entrada", label: "Entrada", format: (v) => formatDate(v) },
+        {
+            key: "data_conclusao",
+            label: "Conclusão",
+            format: (v) => v ? formatDate(v) : "—"
+        }
+    ];
+
+
+    const actions = [
+        {
+            label: "Editar",
+            onClick: (row, modal) => {
+                modal.setModalContent({
+                    title: "Editar veículo e cliente",
+                    body: (
+                        <Form
+                            mode="edit"
+                            initialData={row}
+                            fields={[
+                                "veiculo_id",
+                                "funcionario_id",
+                            ]}
+                        />
+                    ),
+                });
+            },
+        },
+    ];
+    const filters = [];
+
+    const handleModalControl = (control) => {
+        modalControl.current = control;
+    };
+
+    const getServicos = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch("/api/servicos");
+            const data = await res.json();
+            console.log(data);
+            setData(data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        getServicos();
+    }, []);
+
     return (
         <div>
             <FlowbiteInit />
             <Navbar />
             <Sidebar />
-
+            <ScrollStyle />
             <main className="overflow-x-auto">
                 <div className="sm:ml-64">
                     <div className="border-gray-200 rounded-lg dark:border-gray-700">
@@ -52,7 +127,14 @@ export default function Servicos() {
 
 
                             <div className="px-8 mb-10">
+                                <Table
+                                    columns={columns}
+                                    data={data}
+                                    actions={actions}
+                                    onModalControl={handleModalControl}
 
+                                    loading={loading}
+                                />
                             </div>
 
 

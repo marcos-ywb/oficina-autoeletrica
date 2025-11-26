@@ -30,10 +30,47 @@ export default function Clientes() {
         { key: "telefone", label: "Telefone", format: (value) => formatPhone(value) },
         { key: "ativo", label: "Status", format: (value) => (value === 1 ? "Ativo" : "Inativo") },
     ];
+
+    const handleEditCliente = async (formData) => {
+        try {
+            const cliente_id = formData.cliente_id;
+
+            const res = await fetch(`/api/clientes/${cliente_id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const result = await res.json();
+
+            if (!res.ok) {
+                toast.error(result.error || "Erro ao atualizar cliente!");
+                return;
+            }
+
+            toast.success("Cliente atualizado com sucesso!");
+
+            if (modalControl.current) {
+                modalControl.current.setModalOpen(false);
+            }
+
+            if (typeof getClientes === "function") {
+                getClientes();
+            }
+
+        } catch (err) {
+            console.error(err);
+            toast.error("Erro inesperado ao atualizar cliente!");
+        }
+    };
+
     const actions = [
         {
             label: "Editar",
             onClick: (row, modal) => {
+                console.log("ROW RECEBIDO:", row);
                 const initialData = {
                     ...row,
                     cep: row.endereco?.cep || "",
@@ -52,7 +89,7 @@ export default function Clientes() {
                             fields={[
                                 {
                                     name: "nome",
-                                    label: "Nome (*)",
+                                    label: "Nome",
                                     type: "text",
                                     placeholder: "Carlos Oliveira",
                                     autoComplete: false,
@@ -67,56 +104,51 @@ export default function Clientes() {
                                 },
                                 {
                                     name: "cep",
-                                    label: "CEP (*)",
+                                    label: "CEP",
                                     type: "text",
                                     placeholder: "00000-000",
                                     mask: "00000-000",
                                     autoComplete: false,
-                                    required: true,
                                 },
                                 {
                                     name: "logradouro",
-                                    label: "Logradouro (*)",
+                                    label: "Logradouro",
                                     type: "text",
                                     placeholder: "Rua Exemplo",
                                     autoComplete: false,
-                                    required: true,
                                 },
                                 {
                                     name: "numero",
-                                    label: "Número (*)",
+                                    label: "Número",
                                     type: "text",
                                     placeholder: "123",
                                     autoComplete: false,
-                                    required: true,
                                 },
                                 {
                                     name: "bairro",
-                                    label: "Bairro (*)",
+                                    label: "Bairro",
                                     type: "text",
                                     placeholder: "Centro",
                                     autoComplete: false,
-                                    required: true,
                                 },
                                 {
                                     name: "cidade",
-                                    label: "Cidade (*)",
+                                    label: "Cidade",
                                     type: "text",
                                     placeholder: "Paracatu",
                                     autoComplete: false,
-                                    required: true,
                                 },
                                 {
                                     name: "estado",
-                                    label: "Estado (*)",
+                                    label: "Estado",
                                     type: "text",
                                     placeholder: "MG",
                                     mask: /^[A-Za-z]{0,2}$/,
                                     autoComplete: false,
-                                    required: true,
                                 },
 
                             ]}
+                            onSubmit={handleEditCliente}
                         />
                     ),
                 });
@@ -217,10 +249,11 @@ export default function Clientes() {
                         fields={[
                             {
                                 name: "nome",
-                                label: "Nome (*)",
+                                label: "Nome",
                                 type: "text",
                                 placeholder: "Carlos Oliveira",
                                 autoComplete: false,
+                                required: true,
                             },
                             {
                                 name: "telefone",
@@ -229,10 +262,11 @@ export default function Clientes() {
                                 placeholder: "(00) 00000-0000",
                                 mask: "(00) 00000-0000",
                                 autoComplete: false,
+                                required: true,
                             },
                             {
                                 name: "cep",
-                                label: "CEP (*)",
+                                label: "CEP",
                                 type: "text",
                                 placeholder: "00000-000",
                                 mask: "00000-000",
@@ -241,7 +275,7 @@ export default function Clientes() {
                             },
                             {
                                 name: "logradouro",
-                                label: "Logradouro (*)",
+                                label: "Logradouro",
                                 type: "text",
                                 placeholder: "Rua Exemplo",
                                 autoComplete: false,
@@ -249,7 +283,7 @@ export default function Clientes() {
                             },
                             {
                                 name: "numero",
-                                label: "Número (*)",
+                                label: "Número",
                                 type: "text",
                                 placeholder: "123",
                                 autoComplete: false,
@@ -257,7 +291,7 @@ export default function Clientes() {
                             },
                             {
                                 name: "bairro",
-                                label: "Bairro (*)",
+                                label: "Bairro",
                                 type: "text",
                                 placeholder: "Centro",
                                 autoComplete: false,
@@ -265,7 +299,7 @@ export default function Clientes() {
                             },
                             {
                                 name: "cidade",
-                                label: "Cidade (*)",
+                                label: "Cidade",
                                 type: "text",
                                 placeholder: "Paracatu",
                                 autoComplete: false,
@@ -273,7 +307,7 @@ export default function Clientes() {
                             },
                             {
                                 name: "estado",
-                                label: "Estado (*)",
+                                label: "Estado",
                                 type: "text",
                                 placeholder: "MG",
                                 mask: /^[A-Za-z]{0,2}$/,
@@ -282,7 +316,6 @@ export default function Clientes() {
                             },
                         ]}
                         onSubmit={handleCreateCliente}
-
                     />
                 )
             });
@@ -291,6 +324,7 @@ export default function Clientes() {
     };
 
     const handleOpenViewModal = (row) => {
+        console.log(row);
         if (modalControl.current) {
             modalControl.current.setModalContent({
                 title: "Detalhes do cliente",
@@ -322,12 +356,12 @@ export default function Clientes() {
                                     <span className="font-medium">Status</span>
                                     <span
                                         className={`px-3 py-1 rounded-full text-sm font-semibold 
-                                    ${row.active
+                                    ${row.ativo
                                                 ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
                                                 : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300"
                                             }`}
                                     >
-                                        {row.active ? "Ativo" : "Inativo"}
+                                        {row.ativo ? "Ativo" : "Inativo"}
                                     </span>
                                 </div>
                             </div>

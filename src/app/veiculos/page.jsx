@@ -34,6 +34,42 @@ export default function Veiculos() {
         { key: "placa", label: "Placa" },
         { key: "criado_em", label: "Criação", format: (value) => formatDate(value) },
     ];
+
+    const handleEditVeiculo = async (formData) => {
+        try {
+            const veiculo_id = formData.veiculo_id;
+
+            const res = await fetch(`/api/veiculos/${veiculo_id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const result = await res.json();
+
+            if (!res.ok) {
+                toast.error(result.error || "Erro ao atualizar veículo!");
+                return;
+            }
+
+            toast.success("Veículo atualizado com sucesso!");
+
+            if (modalControl.current) {
+                modalControl.current.setModalOpen(false);
+            }
+
+            if (typeof getVeiculos === "function") {
+                getVeiculos();
+            }
+
+        } catch (err) {
+            console.error(err)
+            toast.error("Erro inesperado ao atualizar veículo!")
+        }
+    };
+
     const actions = [
         {
             label: "Editar",
@@ -46,11 +82,23 @@ export default function Veiculos() {
                             mode="edit"
                             initialData={{
                                 ...row,
+                                cliente_id: row.cliente_ref,
                                 cliente_nome: row.cliente?.nome || "",
-                                cliente_telefone: row.cliente?.telefone || "",
-                                cliente_ativo: row.cliente?.ativo || true,
                             }}
                             fields={[
+                                // Dados do cliente
+                                {
+                                    name: "cliente_id",
+                                    label: "Cliente responsável",
+                                    type: "search-select",
+                                    placeholder: "Buscar cliente...",
+                                    options: clientes
+                                        .filter(c => c.ativo === 1)
+                                        .map(c => ({
+                                            value: c.cliente_id,
+                                            label: c.nome
+                                        }))
+                                },
                                 // Dados do veículo
                                 {
                                     name: "marca",
@@ -80,62 +128,9 @@ export default function Veiculos() {
                                     placeholder: "ABC-1234",
                                     autoComplete: false
                                 },
-                                // Dados do cliente
-                                {
-                                    name: "cliente_nome",
-                                    label: "Nome do Cliente",
-                                    type: "text",
-                                    placeholder: "Marcos Mello",
-                                    autoComplete: false
-                                },
-                                {
-                                    name: "cliente_telefone",
-                                    label: "Telefone do Cliente",
-                                    type: "text",
-                                    placeholder: "(00) 00000-0000",
-                                    mask: "(00) 00000-0000",
-                                    autoComplete: false,
-                                },
+
                             ]}
-                        /*
-                        onSubmit={async (formData) => {
-                            try {
-                                // Atualiza veículo
-                                await fetch(`/api/veiculos/${row.veiculo_id}`, {
-                                    method: "PUT",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({
-                                        marca: formData.marca,
-                                        modelo: formData.modelo,
-                                        ano: formData.ano,
-                                        placa: formData.placa
-                                    })
-                                });
-
-                                // Atualiza cliente
-                                await fetch(`/api/clientes/${row.cliente_ref}`, {
-                                    method: "PUT",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({
-                                        nome: formData.cliente_nome,
-                                        telefone: formData.cliente_telefone,
-                                        ativo: formData.cliente_ativo
-                                    })
-                                });
-
-                                toast.success("Veículo e cliente atualizados com sucesso!");
-                                await getVeiculos();
-
-                                if (modalControl.current) {
-                                    modalControl.current.setModalOpen(false);
-                                }
-
-                            } catch (err) {
-                                console.error(err);
-                                toast.error("Erro ao atualizar veículo ou cliente.");
-                            }
-                        }}
-                        */
+                            onSubmit={handleEditVeiculo}
                         />
                     ),
                 });
@@ -209,15 +204,41 @@ export default function Veiculos() {
                                 type: "search-select",
                                 placeholder: "Buscar cliente...",
                                 required: true,
-                                options: clientes.map(c => ({
-                                    value: c.cliente_id,
-                                    label: c.nome
-                                }))
+                                options: clientes
+                                    .filter(c => c.ativo === 1)
+                                    .map(c => ({
+                                        value: c.cliente_id,
+                                        label: c.nome
+                                    }))
                             },
-                            { name: "marca", label: "Marca", type: "text", placeholder: "Fiat" },
-                            { name: "modelo", label: "Modelo", type: "text", placeholder: "Palio" },
-                            { name: "ano", label: "Ano", type: "text", placeholder: "2020" },
-                            { name: "placa", label: "Placa", type: "text", placeholder: "ABC-1234" },
+                            {
+                                name: "marca",
+                                label: "Marca",
+                                type: "text",
+                                placeholder: "Fiat",
+                                required: true,
+                            },
+                            {
+                                name: "modelo",
+                                label: "Modelo",
+                                type: "text",
+                                placeholder: "Palio",
+                                required: true,
+                            },
+                            {
+                                name: "ano",
+                                label: "Ano",
+                                type: "text",
+                                placeholder: "2020",
+                                required: true,
+                            },
+                            {
+                                name: "placa",
+                                label: "Placa",
+                                type: "text",
+                                placeholder: "ABC-1234",
+                                required: true,
+                            },
                         ]}
                         onSubmit={handleCreateVeiculo}
                     />
@@ -352,7 +373,7 @@ export default function Veiculos() {
         try {
             const res = await fetch("/api/clientes");
             const data = await res.json();
-
+            console.log("Clientes: ", data);
             setClientes(data);
         } catch (err) {
             console.error(err);

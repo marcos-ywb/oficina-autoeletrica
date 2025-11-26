@@ -1,25 +1,21 @@
 import { NextResponse } from "next/server";
 import { database } from "@/lib/database";
 
-export async function PUT(request, context) {
+export async function PUT(request, { params }) {
     try {
-        const { veiculo_id } = await context.params;
+        const funcionario_id = await params;
         const body = await request.json();
 
         const {
-            marca,
-            modelo,
-            ano,
-            placa,
-            cliente_id
+            nome,
+            telefone,
+            cargo
         } = body;
 
         if (
-            !marca ||
-            !modelo ||
-            !ano ||
-            !placa ||
-            !cliente_id
+            !nome ||
+            !telefone ||
+            !cargo
         ) {
             return NextResponse.json(
                 { error: "Dados incompletos!" },
@@ -27,21 +23,22 @@ export async function PUT(request, context) {
             );
         }
 
+        const telefoneLimpo = telefone.replace(/\D/g, "");
+
         await database.query(
-            `UPDATE veiculos
-            SET marca=?, modelo=?, ano=?, placa=?, cliente_id=?
-            WHERE veiculo_id=?`,
-            [marca, modelo, ano, placa, cliente_id, veiculo_id]
+            `UPDATE funcionarios SET nome=?, telefone=?, cargo=?
+            WHERE funcionario_id=?`,
+            [nome, telefoneLimpo, cargo, funcionario_id]
         );
 
         return NextResponse.json(
             { success: true },
             { status: 200 },
-            { message: "Veículo atualizado com sucesso!" }
-        );
+            { message: "Funcionário atualizado com sucesso!" }
 
+        );
     } catch (err) {
-        console.error("Erro ao atualizar veículo: ", err);
+        console.error("Erro ao atualizar funcionário:", err);
         return NextResponse.json(
             { error: "Erro interno no servidor!" },
             { status: 500 }

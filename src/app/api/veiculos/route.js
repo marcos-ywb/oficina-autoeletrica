@@ -17,7 +17,7 @@ export async function GET() {
                 v.criado_em
             FROM veiculos v
             JOIN clientes c ON v.cliente_id = c.cliente_id
-            ORDER BY v.veiculo_id
+            ORDER BY v.veiculo_id DESC
         `);
 
         const data = rows.map((v) => ({
