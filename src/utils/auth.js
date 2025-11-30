@@ -49,3 +49,15 @@ export function validateForm({ email, password }) {
 
     return errors;
 }
+
+export function validateFormPasswords({ password, confirmPassword }) {
+    const errors = {};
+
+    const passwordError = validatePassword(password);
+    const confirmPasswordError = validateConfirmPassword(password, confirmPassword);
+
+    if (passwordError) errors.password = passwordError;
+    if (confirmPasswordError) errors.confirmPassword = confirmPasswordError;
+
+    return errors;
+}

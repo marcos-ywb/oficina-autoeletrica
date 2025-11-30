@@ -80,6 +80,7 @@ export default function Clientes() {
                     cidade: row.endereco?.cidade || "",
                     estado: row.endereco?.estado || "",
                 };
+                console.log("initialData:", initialData);
                 modal.setModalContent({
                     title: "Editar cliente",
                     body: (

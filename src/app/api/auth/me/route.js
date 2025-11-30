@@ -15,7 +15,7 @@ export async function GET(req) {
         const funcionarioID = decoded.id;
 
         const [rows] = await database.query(
-            "SELECT funcionario_id, nome, email FROM funcionarios WHERE funcionario_id = ?", [funcionarioID]
+            "SELECT funcionario_id, nome, email, primeiro_acesso, cargo FROM funcionarios WHERE funcionario_id = ?", [funcionarioID]
         );
 
         const funcionario = rows[0];
@@ -26,7 +26,9 @@ export async function GET(req) {
         return NextResponse.json({
             id: funcionario.funcionario_id,
             email: funcionario.email,
-            name: funcionario.nome
+            name: funcionario.nome,
+            primeiro_acesso: funcionario.primeiro_acesso,
+            cargo: funcionario.cargo
         });
 
     } catch {

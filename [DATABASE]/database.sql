@@ -62,7 +62,7 @@ CREATE TABLE servicos (
     data_conclusao DATE,
     status ENUM('Pendente', 'Em andamento', 'Aguardando peças', 'Concluido', 'Cancelado') NOT NULL DEFAULT 'Pendente',
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY(servico_id),
     FOREIGN KEY(veiculo_id) REFERENCES veiculos(veiculo_id),
     FOREIGN KEY(funcionario_id) REFERENCES funcionarios(funcionario_id)
@@ -93,6 +93,27 @@ BEGIN
 
     IF NEW.ativo = 1 AND OLD.ativo = 0 THEN
         SET NEW.demissao_em = NULL;
+    END IF;
+END$$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE TRIGGER set_status_update
+BEFORE UPDATE ON servicos
+FOR EACH ROW
+BEGIN
+    IF NEW.status <> OLD.status THEN
+        
+        IF NEW.status IN ('Concluido', 'Cancelado') THEN
+            SET NEW.data_conclusao = CURDATE();
+        
+        ELSE
+            SET NEW.data_conclusao = NULL;
+        END IF;
+
     END IF;
 END$$
 

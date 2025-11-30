@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
 
+import { stringToColor, getContrastTextColor, getInitials } from "@/utils/avatar";
+
 export default function Navbar() {
     const router = useRouter();
 
@@ -50,6 +52,9 @@ export default function Navbar() {
 
         fetchUser();
     }, []);
+
+    const bgColor = stringToColor(user.name);
+    const textColor = getContrastTextColor(bgColor);
 
     return (
         <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
@@ -107,11 +112,15 @@ export default function Navbar() {
                                     data-dropdown-toggle="dropdown-user"
                                 >
                                     <span className="sr-only">Open user menu</span>
-                                    <img
-                                        className="w-8 h-8 rounded-full"
-                                        src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                                        alt="default user"
-                                    />
+                                    <div
+                                        className="w-12 h-12 flex items-center justify-center rounded-full font-semibold text-lg"
+                                        style={{
+                                            backgroundColor: bgColor,
+                                            color: textColor,
+                                        }}
+                                    >
+                                        {getInitials(user.name)}
+                                    </div>
                                 </button>
                             </div>
 

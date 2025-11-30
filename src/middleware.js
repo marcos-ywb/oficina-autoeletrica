@@ -20,12 +20,9 @@ export function middleware(req) {
         (path) => normalizePath(path) === currentPath
     );
 
-    if (!isProtected) {
-        return NextResponse.next();
-    }
+    if (!isProtected) return NextResponse.next();
 
     const token = req.cookies.get("token")?.value;
-
     if (!token) {
         url.pathname = "/";
         url.searchParams.set("auth", "required");
@@ -33,9 +30,18 @@ export function middleware(req) {
     }
 
     try {
-        jwt.verify(token, process.env.JWT_SECRET || "0qZpU21nCb4bWq8K8sV3rUO7jKZQh4sI");
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET || "0qZpU21nCb4bWq8K8sV3rUO7jKZQh4sI"
+        );
+
+        if (decoded.primeiro_acesso && currentPath !== "/primeiro-acesso") {
+            url.pathname = "/primeiro-acesso";
+            return NextResponse.redirect(url);
+        }
 
         return NextResponse.next();
+
     } catch (err) {
         url.pathname = "/";
         url.searchParams.set("auth", "invalid");

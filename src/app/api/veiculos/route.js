@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { database } from "@/lib/database";
 
-export async function GET() {
+export async function GET(request) {
     try {
-        const [rows] = await database.query(`
-            SELECT 
+        const { searchParams } = new URL(request.url);
+        const cliente_id = searchParams.get("cliente_id");
+
+        let query = `
+            SELECT
                 v.veiculo_id,
                 v.cliente_id,
                 c.nome AS cliente_nome,
@@ -17,8 +20,18 @@ export async function GET() {
                 v.criado_em
             FROM veiculos v
             JOIN clientes c ON v.cliente_id = c.cliente_id
-            ORDER BY v.veiculo_id DESC
-        `);
+        `;
+
+        const params = [];
+
+        if (cliente_id) {
+            query += " WHERE v.cliente_id = ?";
+            params.push(cliente_id);
+        }
+
+        query += " ORDER BY v.veiculo_id DESC";
+
+        const [rows] = await database.query(query, params);
 
         const data = rows.map((v) => ({
             veiculo_id: v.veiculo_id,
@@ -31,8 +44,8 @@ export async function GET() {
             cliente: {
                 nome: v.cliente_nome,
                 telefone: v.cliente_telefone,
-                ativo: v.cliente_ativo
-            }
+                ativo: v.cliente_ativo,
+            },
         }));
 
         return NextResponse.json(data, { status: 200 });

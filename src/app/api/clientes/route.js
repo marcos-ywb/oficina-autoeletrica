@@ -64,7 +64,6 @@ export async function POST(req) {
             estado
         } = body;
 
-        // validações
         if (
             !nome ||
             !telefone ||
@@ -81,11 +80,9 @@ export async function POST(req) {
             );
         }
 
-        // remove máscara do telefone e cep
         const telefoneLimpo = telefone.replace(/\D/g, "");
         const cepLimpo = cep.replace(/\D/g, "");
 
-        // 1️⃣ cria o cliente
         const [clienteResult] = await database.query(
             "INSERT INTO clientes (nome, telefone) VALUES (?, ?)",
             [nome, telefoneLimpo]
@@ -93,7 +90,6 @@ export async function POST(req) {
 
         const clienteId = clienteResult.insertId;
 
-        // 2️⃣ cria o endereço
         await database.query(
             `INSERT INTO enderecos 
             (cliente_id, cep, logradouro, numero, bairro, cidade, estado)

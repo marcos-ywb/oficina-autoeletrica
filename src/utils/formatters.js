@@ -31,3 +31,13 @@ export const formatCurrency = (value) => {
         currency: "BRL",
     });
 };
+
+export const clearCurrency = (value) => {
+    if (!value) return 0;
+
+    value = value.replace(/[R$\s]/g, "");
+    value = value.replace(/\./g, "");
+    value = value.replace(/,/g, ".");
+
+    return Number(value);
+};

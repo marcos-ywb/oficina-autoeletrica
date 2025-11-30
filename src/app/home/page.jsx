@@ -11,6 +11,7 @@ import Modal from "@/components/Modal";
 import FlowbiteInit from "../FlowbiteInit";
 
 const agendamentos = [
+    /*
     { id: 1, cliente: "Carlos Silva", servico: "Troca de bateria", data: "2025-10-22", horario: "10:00", status: "confirmado" },
     { id: 2, cliente: "Mariana Oliveira", servico: "Alinhamento elétrico", data: "2025-10-22", horario: "10:30", status: "confirmado" },
     { id: 3, cliente: "João Santos", servico: "Troca de farol", data: "2025-10-22", horario: "11:00", status: "pendente" },
@@ -31,6 +32,7 @@ const agendamentos = [
     { id: 18, cliente: "Patricia Oliveira", servico: "Reparo de farol", data: "2025-10-22", horario: "18:30", status: "confirmado" },
     { id: 19, cliente: "Gustavo Santos", servico: "Revisão elétrica completa", data: "2025-10-22", horario: "19:00", status: "pendente" },
     { id: 20, cliente: "Patricia Oliveira", servico: "Troca de fusível", data: "2025-10-22", horario: "19:30", status: "pendente" },
+     */
 ];
 
 const resumo = [

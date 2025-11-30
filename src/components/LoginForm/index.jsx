@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { toast } from "react-hot-toast"
+import { toast } from "react-hot-toast";
+import { Eye, EyeOff } from "lucide-react";
 
 import { sanitizeEmail, sanitizePassword, validateForm } from "@/utils/auth";
 
@@ -20,6 +21,8 @@ export default function LoginForm() {
     });
 
     const [errors, setErrors] = useState({});
+
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         const auth = params.get("auth");
@@ -74,7 +77,7 @@ export default function LoginForm() {
                 return;
             }
 
-            toast.success(`Bem-vindo, ${data.name}!`);
+            toast.success("Login realizado com sucesso!");
             setSuccess(true);
 
             router.push("/home");
@@ -169,7 +172,7 @@ export default function LoginForm() {
                                 </label>
 
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     name="password"
                                     id="password"
                                     className={inputClass("password")}
@@ -178,9 +181,17 @@ export default function LoginForm() {
                                     onChange={handleChange}
                                 />
 
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword((prev) => !prev)}
+                                    className="absolute right-3 top-9.5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer"
+                                >
+                                    {showPassword ? <EyeOff /> : <Eye />}
+                                </button>
+
                                 {/* Mensagem de feedback */}
                                 <div
-                                    className={`overflow-hidden transition-all duration-300 ease-in-out ${errors.password || success ? "max-h-10 opacity-100 mt-1" : "max-h-0 opacity-0"
+                                    className={`overflow-hidden transition-all duration-300 ease-in-out ${errors.password || success ? "max-h-10 opacity-100 mt-2" : "max-h-0 opacity-0"
                                         }`}
                                 >
                                     {errors.password ? (

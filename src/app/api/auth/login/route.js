@@ -27,8 +27,15 @@ export async function POST(req) {
             );
         }
 
-        const isMath = await bcrypt.compare(password, funcionario.senha || "");
-        if (!isMath) {
+        if (!funcionario.ativo) {
+            return NextResponse.json(
+                { error: "Seu acesso foi desativado. Contate o administrador." },
+                { status: 403 }
+            );
+        }
+
+        const isMatch = await bcrypt.compare(password, funcionario.senha || "");
+        if (!isMatch) {
             return NextResponse.json(
                 { error: "Credenciais inválidas!" },
                 { status: 401 }
@@ -39,6 +46,7 @@ export async function POST(req) {
             id: funcionario.funcionario_id,
             email: funcionario.email,
             name: funcionario.nome,
+            primeiro_acesso: Boolean(Number(funcionario.primeiro_acesso)),
         });
 
         const response = NextResponse.json({

@@ -9,40 +9,45 @@ import {
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
 
-export default function Form({ mode, initialData = {}, fields, onSubmit }) {
+export default function Form({ mode, initialData = {}, fields = [], onSubmit }) {
     const [formData, setFormData] = useState(initialData);
     const [autoCep, setAutoCep] = useState(mode === "add");
-    const [searchValue, setSearchValue] = useState("");
     const [openDropdown, setOpenDropdown] = useState(null);
+    const [searchValues, setSearchValues] = useState({});
 
-    const dropdownRef = useRef(null);
+    const dropdownRefs = useRef({});
 
-    // Fechar dropdown ao clicar fora
+    useEffect(() => {
+        setFormData(initialData);
+    }, [initialData]);
+
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+            if (!openDropdown) return;
+
+            const el = dropdownRefs.current[openDropdown];
+            if (!el || !el.contains(e.target)) {
                 setOpenDropdown(null);
             }
         };
 
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    }, [openDropdown]);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
     const handleMaskChange = (name, value) => {
-        setFormData({ ...formData, [name]: value });
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit(formData);
+        if (onSubmit) onSubmit(formData);
     };
 
-    // Auto preenchimento de CEP
     useEffect(() => {
         if (!autoCep) return;
         const cep = formData.cep?.replace(/\D/g, "");
@@ -102,7 +107,6 @@ export default function Form({ mode, initialData = {}, fields, onSubmit }) {
                         className="flex items-center gap-1 mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
                         {field.label}
-
                         {field.required && (
                             <TooltipProvider>
                                 <Tooltip>
@@ -111,7 +115,6 @@ export default function Form({ mode, initialData = {}, fields, onSubmit }) {
                                             <Info className="w-4 h-4" />
                                         </span>
                                     </TooltipTrigger>
-
                                     <TooltipContent side="right">
                                         <p>Campo obrigatório</p>
                                     </TooltipContent>
@@ -120,33 +123,45 @@ export default function Form({ mode, initialData = {}, fields, onSubmit }) {
                         )}
                     </label>
 
-
                     {field.type === "search-select" ? (
-                        <div className="relative" ref={dropdownRef}>
+                        <div
+                            className="relative"
+                            ref={(el) => { dropdownRefs.current[field.name] = el; }}
+                        >
                             <input
                                 type="text"
                                 placeholder={field.placeholder || "Buscar..."}
-                                value={searchValue || field.options.find(o => o.value === formData[field.name])?.label || ""}
+                                value={
+                                    searchValues[field.name] ??
+                                    field.options?.find(o => o.value === formData[field.name])?.label ??
+                                    ""
+                                }
                                 onChange={(e) => {
-                                    setSearchValue(e.target.value);
+                                    const value = e.target.value;
+                                    setSearchValues(prev => ({
+                                        ...prev,
+                                        [field.name]: value
+                                    }));
                                     setOpenDropdown(field.name);
                                 }}
                                 onFocus={() => setOpenDropdown(field.name)}
+                                disabled={field.disabled}
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
                                            focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 
                                            dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
                                            dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 cursor-pointer"
                             />
 
-                            {/* DROPDOWN */}
                             {openDropdown === field.name && (
                                 <ul
                                     className="absolute mt-1 z-50 w-full max-h-48 overflow-auto rounded-lg 
                                                bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg"
                                 >
-                                    {field.options
+                                    {(field.options || [])
                                         .filter(option =>
-                                            option.label.toLowerCase().includes(searchValue.toLowerCase())
+                                            option.label
+                                                .toLowerCase()
+                                                .includes((searchValues[field.name] || "").toLowerCase())
                                         )
                                         .map(option => (
                                             <li
@@ -156,8 +171,17 @@ export default function Form({ mode, initialData = {}, fields, onSubmit }) {
                                                         ...prev,
                                                         [field.name]: option.value
                                                     }));
-                                                    setSearchValue(option.label);
+
+                                                    setSearchValues(prev => ({
+                                                        ...prev,
+                                                        [field.name]: option.label
+                                                    }));
+
                                                     setOpenDropdown(null);
+
+                                                    if (field.onChange) {
+                                                        field.onChange(option.value);
+                                                    }
                                                 }}
                                                 className="px-3 py-2 text-sm text-gray-900 dark:text-gray-200 
                                                            hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
@@ -166,8 +190,10 @@ export default function Form({ mode, initialData = {}, fields, onSubmit }) {
                                             </li>
                                         ))}
 
-                                    {field.options.filter(option =>
-                                        option.label.toLowerCase().includes(searchValue.toLowerCase())
+                                    {(field.options || []).filter(option =>
+                                        option.label
+                                            .toLowerCase()
+                                            .includes((searchValues[field.name] || "").toLowerCase())
                                     ).length === 0 && (
                                             <li className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
                                                 Nenhum resultado encontrado
@@ -177,7 +203,6 @@ export default function Form({ mode, initialData = {}, fields, onSubmit }) {
                             )}
                         </div>
                     ) : field.type === "select" ? (
-                        // SELECT NORMAL
                         <select
                             name={field.name}
                             id={field.name}
@@ -199,7 +224,6 @@ export default function Form({ mode, initialData = {}, fields, onSubmit }) {
                             ))}
                         </select>
                     ) : field.type === "radioGroup" ? (
-                        // RADIO GROUP
                         <div className="space-y-2">
                             {field.options.map(option => (
                                 <label key={option.value} className="flex items-center gap-2 cursor-pointer">
@@ -217,16 +241,21 @@ export default function Form({ mode, initialData = {}, fields, onSubmit }) {
                                 </label>
                             ))}
                         </div>
-                    ) : field.mask ? (
-                        // INPUT COM MÁSCARA
+                    ) : (field.type === "mask" || field.imask || field.mask) ? (
                         <IMaskInput
-                            mask={field.mask}
+                            {...(field.imask ? field.imask : { mask: field.mask })}
                             name={field.name}
                             id={field.name}
-                            defaultValue={formData[field.name] || ""}
-                            onAccept={(value) => {
-                                if (!autoCep && mode === "edit") setAutoCep(true);
+                            value={formData[field.name] || undefined}
+
+                            onAccept={(value, mask) => {
+                                //if (!autoCep && mode === "edit") setAutoCep(true);
                                 handleMaskChange(field.name, value);
+
+                                if (field.onAccept) field.onAccept(value, mask);
+                            }}
+                            onComplete={(value, mask) => {
+                                if (field.onComplete) field.onComplete(value, mask);
                             }}
                             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
                                        focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 
@@ -237,7 +266,6 @@ export default function Form({ mode, initialData = {}, fields, onSubmit }) {
                             {...(field.required ? { required: true } : {})}
                         />
                     ) : field.type === "textarea" ? (
-                        // TEXTAREA
                         <textarea
                             name={field.name}
                             id={field.name}
@@ -253,7 +281,6 @@ export default function Form({ mode, initialData = {}, fields, onSubmit }) {
                             {...(field.required ? { required: true } : {})}
                         ></textarea>
                     ) : (
-                        // INPUT NORMAL
                         <input
                             type={field.type}
                             name={field.name}

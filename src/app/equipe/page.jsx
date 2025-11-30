@@ -167,61 +167,108 @@ export default function Equipe() {
     };
 
     const handleCreateFuncionario = async (formData) => {
+        try {
+            const res = await fetch("/api/funcionarios", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
 
+            const result = await res.json();
+
+            if (!res.ok) {
+                toast.error(result.error);
+                return;
+            }
+
+            toast.success("Funcionário cadastrado com sucesso!");
+
+            if (modalControl.current) {
+                modalControl.current.setModalOpen(false);
+            }
+
+            if (typeof getFuncionarios === "function") {
+                getFuncionarios();
+            }
+        } catch (err) {
+            console.error("Erro:", err);
+            toast.error("Erro ao enviar dados!");
+        }
     };
 
     const handleAddFuncionario = () => {
         if (modalControl.current) {
             modalControl.current.setModalContent({
-                title: "Adicionar funcionário",
+                title: "Adicionar funcionário",
                 body: (
-                    <Form
-                        mode="add"
-                        initialData={{ funcionarioId: "" }}
-                        fields={[
-                            {
-                                name: "nome",
-                                label: "Nome",
-                                type: "text",
-                                placeholder: "Carlos Oliveira",
-                                autoComplete: false,
-                                required: true,
-                            },
-                            {
-                                name: "telefone",
-                                label: "Telefone",
-                                type: "text",
-                                placeholder: "(00) 00000-0000",
-                                mask: "(00) 00000-0000",
-                                autoComplete: false,
-                                required: true,
-                            },
-                            {
-                                name: "email",
-                                label: "Email",
-                                type: "email",
-                                placeholder: "email@email.com",
-                                autoComplete: false,
-                                required: true,
-                            },
-                            {
-                                name: "cargo",
-                                label: "Cargo",
-                                type: "select",
-                                required: true,
-                                options: [
-                                    { value: "Administrador", label: "Administrador" },
-                                    { value: "Funcionario", label: "Funcionário" },
-                                ]
-                            }
-                        ]}
-                        onSubmit={handleCreateFuncionario}
-                    />
+                    <div className="space-y-8">
+
+                        {/* Formulário */}
+                        <Form
+                            mode="add"
+                            initialData={{ funcionarioId: "" }}
+                            fields={[
+                                {
+                                    name: "nome",
+                                    label: "Nome",
+                                    type: "text",
+                                    placeholder: "Carlos Oliveira",
+                                    autoComplete: false,
+                                    required: true,
+                                },
+                                {
+                                    name: "telefone",
+                                    label: "Telefone",
+                                    type: "text",
+                                    placeholder: "(00) 00000-0000",
+                                    mask: "(00) 00000-0000",
+                                    autoComplete: false,
+                                    required: true,
+                                },
+                                {
+                                    name: "email",
+                                    label: "Email",
+                                    type: "email",
+                                    placeholder: "email@email.com",
+                                    autoComplete: false,
+                                    required: true,
+                                },
+                                {
+                                    name: "cargo",
+                                    label: "Cargo",
+                                    type: "select",
+                                    required: true,
+                                    options: [
+                                        { value: "Administrador", label: "Administrador" },
+                                        { value: "Funcionario", label: "Funcionário" },
+                                    ]
+                                }
+                            ]}
+                            onSubmit={handleCreateFuncionario}
+                        />
+
+                        <div className="flex items-start gap-3 rounded-xl border border-yellow-300/40 bg-linear-to-br from-yellow-50 to-yellow-100/60 dark:from-yellow-900/20 dark:to-yellow-900/10 p-4 shadow-sm backdrop-blur-sm">
+
+                            <div className="text-yellow-600 dark:text-yellow-400 text-xl leading-none">
+                                ⚠️
+                            </div>
+
+                            <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                                O usuário será criado com uma <strong>senha padrão temporária</strong>.
+                                No primeiro acesso, ele será <strong>obrigado a redefinir</strong> sua senha para uma nova de sua preferência.
+                            </p>
+
+                        </div>
+
+                    </div>
                 )
             });
             modalControl.current.setModalOpen(true);
         }
     };
+
 
     const getFuncionarios = async () => {
         setLoading(true);

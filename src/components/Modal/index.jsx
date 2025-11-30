@@ -1,4 +1,6 @@
-import React, { useEffect, useRef } from "react";
+"use client";
+
+import React, { useEffect, useState, useRef } from "react";
 import ScrollStyle from "../ScrollStyle";
 
 export default function Modal({

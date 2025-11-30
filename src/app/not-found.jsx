@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export default function NotFound() {
-    const homePage = "/home";
+    const homePage = "/";
 
     return (
         <section className="bg-white dark:bg-gray-900 min-h-screen flex items-center justify-center">

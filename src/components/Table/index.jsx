@@ -175,6 +175,7 @@ export default function Table({
             row.veiculo_id ||
             row.funcionario_id ||
             row.user_id ||
+            row.servico_id ||
             row.product_id ||
             row.uuid || // caso algum use UUID
             `row-${Math.random().toString(36).substr(2, 9)}`
@@ -182,12 +183,6 @@ export default function Table({
     };
 
     return (
-        /*
-        <section className="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
-            <div className="mx-auto max-w-screen-xl px-4 lg:px-12">
-                */
-
-
 
         <section>
             <div>
@@ -526,7 +521,7 @@ export default function Table({
                     {/* FIM DA TABLE */}
 
                     {/* MODAL */}
-                    {modalOpen && <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={modalContent.title} children={modalContent.body} />}
+                    {modalOpen && <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={modalContent.title} children={modalContent.body} size={modalContent.size} />}
 
                     {/* PAGINAÇÃO */}
                     {
