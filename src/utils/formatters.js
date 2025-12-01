@@ -5,6 +5,13 @@ export const formatDate = (dateString) => {
     return date.toLocaleDateString("pt-BR");
 };
 
+export const formatDateTime = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "-";
+    return date.toLocaleString("pt-BR");
+}
+
 export const formatPhone = (phone) => {
     if (!phone) return "-";
     const cleaned = phone.replace(/\D/g, "");

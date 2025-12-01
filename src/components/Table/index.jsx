@@ -26,10 +26,7 @@ export default function Table({
 
     const handleOptionToggle = (filterKey, optionValue, onChange) => {
         let currentValues = filterValues[filterKey] || [];
-
-        // Como só há uma opção por vez (Ativos ou Inativos), seleciona diretamente
         if (currentValues.includes(optionValue)) {
-            // Evita deixar sem nada (sempre deve ter 1 selecionado)
             return;
         } else {
             currentValues = [optionValue];
@@ -61,20 +58,24 @@ export default function Table({
         }
 
         Object.entries(filterValues).forEach(([key, values]) => {
-            if (values && values.length > 0) {
-                result = result.filter((item) => {
-                    const itemValue = item[key];
+            if (!values || values.length === 0) return;
 
-                    // Filtro específico: ativo/inativo
-                    if (key === "status" || key === "active") {
-                        if (values.includes("Ativos")) return itemValue === "Ativo";
-                        if (values.includes("Inativos")) return itemValue === "Inativo";
-                    }
+            const selected = values[0];
 
-                    return values.some((v) => String(v) === String(itemValue));
-                });
-            }
+            if (selected === "") return;
+
+            result = result.filter((item) => {
+                const itemValue = item[key];
+
+                if (key === "status" || key === "active") {
+                    if (selected === "Ativos") return itemValue === "Ativo";
+                    if (selected === "Inativos") return itemValue === "Inativo";
+                }
+
+                return String(itemValue) === String(selected);
+            });
         });
+
 
         return result;
     }, [data, search, filterValues]);

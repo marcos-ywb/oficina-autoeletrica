@@ -3,23 +3,24 @@ import { database } from "@/lib/database";
 
 export async function PUT(req) {
     try {
-        const { servico_id, status } = await req.json();
+        const body = await req.json();
+        const { servico_id, custo_final } = body;
 
         if (
             !servico_id ||
-            !status
+            !custo_final === undefined
         ) {
             return NextResponse.json(
-                { error: "ID e status são obrigatórios!" },
+                { error: "Dados incompletos!" },
                 { status: 400 }
             );
         }
 
         const [result] = await database.query(
             `UPDATE servicos
-            SET status = ?, data_conclusao = IF(? IN ('Concluido', 'Cancelado'), NOW(), NULL)
+            SET custo_final = ?
             WHERE servico_id = ?`,
-            [status, status, servico_id]
+            [custo_final, servico_id]
         );
 
         if (result.affectedRows === 0) {
@@ -29,19 +30,17 @@ export async function PUT(req) {
             );
         }
 
-        const [updated] = await database.query(
-            `SELECT data_conclusao FROM servicos WHERE servico_id = ?`,
-            [servico_id]
-        );
-
         return NextResponse.json({
             success: true,
-            message: "Status atualizado com sucesso!",
-            data_conclusao: updated[0].data_conclusao
+            message: "Custo final atualizado com sucesso!",
+            updated: {
+                servico_id,
+                custo_final
+            }
         });
 
     } catch (err) {
-        console.error("Erro ao atualizar status de serviço!", err);
+        console.error("Erro ao atualizar custo do serviço!", err);
         return NextResponse.json(
             { error: "Erro interno no servidor!" },
             { status: 500 }
