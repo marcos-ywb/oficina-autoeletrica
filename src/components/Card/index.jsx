@@ -1,4 +1,4 @@
-import { formatCurrency, formatDate } from "@/utils/formatters";
+import { formatCurrency } from "@/utils/formatters";
 
 export default function Card({
     data,
@@ -7,10 +7,18 @@ export default function Card({
 }) {
     return (
         <div
-            className={`bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col justify-between transition-transform duration-200 hover:scale-[1.02] h-full border-l-4 ${data.status === "pendente"
-                ? "border-yellow-400" : data.status === "confirmado"
-                    ? "border-green-400" : data.status === "cancelado"
-                        ? "border-red-400" : "border-none"}`}
+            className={`bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col justify-between transition-transform duration-200 hover:scale-[1.02] h-full border-l-4 
+                ${data.status === "Pendente"
+                    ? "border-yellow-400"
+                    : data.status === "Em andamento"
+                        ? "border-blue-400"
+                        : data.status === "Aguardando peças"
+                            ? "border-purple-400"
+                            : data.status === "Concluido"
+                                ? "border-green-400"
+                                : data.status === "Cancelado"
+                                    ? "border-red-400"
+                                    : "border-gray-400"}`}
 
             onClick={() => onClick && onClick(data)}
         >
@@ -28,11 +36,12 @@ export default function Card({
                     </p>
                 )}
 
-                {data.value && !data.servico && (
+                {data.value !== undefined && data.value !== null && !data.servico && (
                     <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">
                         {data.value}
                     </p>
                 )}
+
 
                 {data.preco && (
                     <p className="text-sm text-gray-500 dark:text-gray 300">

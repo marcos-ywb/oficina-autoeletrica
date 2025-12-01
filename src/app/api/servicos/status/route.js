@@ -5,10 +5,7 @@ export async function PUT(req) {
     try {
         const { servico_id, status } = await req.json();
 
-        if (
-            !servico_id ||
-            !status
-        ) {
+        if (!servico_id || !status) {
             return NextResponse.json(
                 { error: "ID e status são obrigatórios!" },
                 { status: 400 }
@@ -17,8 +14,8 @@ export async function PUT(req) {
 
         const [result] = await database.query(
             `UPDATE servicos
-            SET status = ?, data_conclusao = IF(? IN ('Concluido', 'Cancelado'), NOW(), NULL)
-            WHERE servico_id = ?`,
+             SET status = ?, data_conclusao = IF(? = 'Concluido', NOW(), NULL)
+             WHERE servico_id = ?`,
             [status, status, servico_id]
         );
 
@@ -30,14 +27,43 @@ export async function PUT(req) {
         }
 
         const [updated] = await database.query(
-            `SELECT data_conclusao FROM servicos WHERE servico_id = ?`,
+            `SELECT custo_final, data_conclusao 
+             FROM servicos 
+             WHERE servico_id = ?`,
             [servico_id]
         );
+
+        const { custo_final, data_conclusao } = updated[0];
+
+        if (status === "Concluido") {
+
+            const [existingPayment] = await database.query(
+                `SELECT pagamento_id 
+                 FROM pagamentos 
+                 WHERE servico_id = ?`,
+                [servico_id]
+            );
+
+            if (existingPayment.length === 0) {
+                await database.query(
+                    `INSERT INTO pagamentos 
+                        (servico_id, valor, forma_pagamento, data_pagamento, status_pagamento)
+                     VALUES (?, ?, ?, ?, ?)`,
+                    [
+                        servico_id,
+                        custo_final || 0,
+                        "Pix",
+                        new Date(),
+                        "Pendente"
+                    ]
+                );
+            }
+        }
 
         return NextResponse.json({
             success: true,
             message: "Status atualizado com sucesso!",
-            data_conclusao: updated[0].data_conclusao
+            data_conclusao
         });
 
     } catch (err) {

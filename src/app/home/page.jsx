@@ -10,36 +10,198 @@ import Modal from "@/components/Modal";
 
 import FlowbiteInit from "../FlowbiteInit";
 
-const agendamentos = [
-    /*
-    { id: 1, cliente: "Carlos Silva", servico: "Troca de bateria", data: "2025-10-22", horario: "10:00", status: "confirmado" },
-    { id: 2, cliente: "Mariana Oliveira", servico: "Alinhamento elétrico", data: "2025-10-22", horario: "10:30", status: "confirmado" },
-    { id: 3, cliente: "João Santos", servico: "Troca de farol", data: "2025-10-22", horario: "11:00", status: "pendente" },
-    { id: 4, cliente: "Ana Oliveira", servico: "Reparo no alternador", data: "2025-10-22", horario: "11:30", status: "cancelado" },
-    { id: 5, cliente: "Pedro Santos", servico: "Revisão elétrica completa", data: "2025-10-22", horario: "12:00", status: "confirmado" },
-    { id: 6, cliente: "Maria Silva", servico: "Troca de fusível", data: "2025-10-22", horario: "12:30", status: "pendente" },
-    { id: 7, cliente: "Lucas Oliveira", servico: "Instalação de sensor", data: "2025-10-22", horario: "13:00", status: "pendente" },
-    { id: 8, cliente: "Fernanda Santos", servico: "Reparo de chicote elétrico", data: "2025-10-22", horario: "13:30", status: "pendente" },
-    { id: 9, cliente: "Rafael Silva", servico: "Troca de luz interna", data: "2025-10-22", horario: "14:00", status: "pendente" },
-    { id: 10, cliente: "Isabela Oliveira", servico: "Manutenção de painel", data: "2025-10-22", horario: "14:30", status: "cancelado" },
-    { id: 11, cliente: "Luiz Santos", servico: "Troca de buzina", data: "2025-10-22", horario: "15:00", status: "pendente" },
-    { id: 12, cliente: "Camila Oliveira", servico: "Reparo de central elétrica", data: "2025-10-22", horario: "15:30", status: "cancelado" },
-    { id: 13, cliente: "Ricardo Silva", servico: "Teste de bateria", data: "2025-10-22", horario: "16:00", status: "cancelado" },
-    { id: 14, cliente: "Larissa Oliveira", servico: "Instalação de faróis LED", data: "2025-10-22", horario: "16:30", status: "pendente" },
-    { id: 15, cliente: "Gustavo Santos", servico: "Reparo de limpador de para-brisa", data: "2025-10-22", horario: "17:00", status: "pendente" },
-    { id: 16, cliente: "Patricia Oliveira", servico: "Troca de bateria", data: "2025-10-22", horario: "17:30", status: "cancelado" },
-    { id: 17, cliente: "Gustavo Santos", servico: "Alinhamento elétrico", data: "2025-10-22", horario: "18:00", status: "pendente" },
-    { id: 18, cliente: "Patricia Oliveira", servico: "Reparo de farol", data: "2025-10-22", horario: "18:30", status: "confirmado" },
-    { id: 19, cliente: "Gustavo Santos", servico: "Revisão elétrica completa", data: "2025-10-22", horario: "19:00", status: "pendente" },
-    { id: 20, cliente: "Patricia Oliveira", servico: "Troca de fusível", data: "2025-10-22", horario: "19:30", status: "pendente" },
-     */
-];
+import { formatCurrency, formatDate, formatPhone, formatCep, formatDateTime } from "@/utils/formatters";
+import { toast } from "react-hot-toast";
 
-const resumo = [
-    { title: "Agendamentos do dia", value: 8 },
-    { title: "Finalizados", value: 5 },
-    { title: "Cancelados", value: 2 },
-];
+const Section = ({ title, children }) => (
+    <div className="rounded-2xl border border-black/10 dark:border-white/10 
+        bg-white/70 dark:bg-gray-900/80 backdrop-blur-md shadow-lg p-6">
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+            {title}
+        </h3>
+        {children}
+    </div>
+);
+
+const InfoItem = ({ label, value }) => (
+    <div className="flex flex-col">
+        <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">{label}</span>
+        <span className="font-medium text-gray-900 dark:text-gray-100">{value}</span>
+    </div>
+);
+
+const statusColors = {
+    "Pendente": "text-yellow-300 border-none bg-yellow-500/5",
+    "Em andamento": "text-blue-300 border-none bg-blue-500/5",
+    "Aguardando peças": "text-purple-300 border-none bg-purple-500/5",
+    "Concluido": "text-green-300 border-none bg-green-500/5",
+    "Cancelado": "text-red-300 border-none bg-red-500/5",
+};
+
+function ServiceViewModal({ row }) {
+
+    return (
+        <div className="space-y-10">
+
+            <Section title="Informações do Serviço">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-10">
+
+                    <InfoItem label="ID" value={row.id} />
+                    <InfoItem label="Descrição" value={row.servico} />
+                    <InfoItem label="Orçamento" value={formatCurrency(row.orcamento)} />
+                    <InfoItem label="Custo Final" value={formatCurrency(row.custoFinal)} />
+                    <InfoItem
+                        label="Status"
+                        value={
+                            <span className={`${statusColors[row.status]}`}>
+                                {row.status}
+                            </span>
+                        }
+                    />
+                    <InfoItem label="Entrada" value={formatDate(row.dataEntrada)} />
+
+                    <InfoItem
+                        label="Conclusão"
+                        value={
+                            row.dataConclusao ? (
+                                <span
+                                    className={
+                                        row.status === "Concluido"
+                                            ? "text-green-300"
+                                            : row.status === "Cancelado"
+                                                ? "text-red-300"
+                                                : "text-gray-300"
+                                    }
+                                >
+                                    {formatDate(row.dataConclusao)}
+                                </span>
+                            ) : (
+                                "—"
+                            )
+                        }
+                    />
+                    <InfoItem label="Última atualização" value={formatDateTime(row.atualizadoEm)} />
+                </div>
+            </Section>
+
+            <Section title="Veículo">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-10">
+                    <InfoItem label="Marca" value={row.marca} />
+                    <InfoItem label="Modelo" value={row.modelo} />
+                    <InfoItem label="Ano" value={row.ano} />
+                    <InfoItem label="Placa" value={row.placa} />
+                </div>
+            </Section>
+
+            <Section title="Cliente">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-10">
+                    <InfoItem label="Nome" value={row.cliente} />
+                    <InfoItem label="Telefone" value={formatPhone(row.telefone)} />
+                    <InfoItem label="CEP" value={formatCep(row.cep)} />
+                    <InfoItem label="Logradouro" value={row.logradouro} />
+                    <InfoItem label="Número" value={row.numero} />
+                    <InfoItem label="Bairro" value={row.bairro} />
+                    <InfoItem label="Cidade" value={row.cidade} />
+                    <InfoItem label="Estado" value={row.estado} />
+                </div>
+            </Section>
+
+            <Section title="Funcionário Responsável">
+                <InfoItem label="Nome" value={row.funcionario_nome} />
+            </Section>
+        </div>
+    );
+}
+
+function ServicoAccordion({ lista }) {
+    const [openIds, setOpenIds] = React.useState([]);
+
+    const toggleOpen = (id) => {
+        setOpenIds((prev) =>
+            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        );
+    };
+
+    const statusColors = {
+        "Pendente": "text-yellow-300 border-yellow-500/20 bg-yellow-500/5",
+        "Em andamento": "text-blue-300 border-blue-500/20 bg-blue-500/5",
+        "Aguardando peças": "text-purple-300 border-purple-500/20 bg-purple-500/5",
+        "Concluido": "text-green-300 border-green-500/20 bg-green-500/5",
+        "Cancelado": "text-red-300 border-red-500/20 bg-red-500/5",
+    };
+
+    return (
+        <div className="space-y-4">
+            {lista.length > 0 ? (
+                lista.map((servico) => {
+                    const open = openIds.includes(servico.id);
+
+                    return (
+                        <div
+                            key={servico.id}
+                            className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-transform duration-200 hover:scale-[1.02]"
+                        >
+                            <button
+                                onClick={() => toggleOpen(servico.id)}
+                                className="w-full px-6 py-4 flex justify-between items-center text-gray-800 dark:text-gray-100 font-medium focus:outline-none cursor-pointer"
+                            >
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-4">
+                                    <span className="text-lg">{servico.servico}</span>
+                                    <span
+                                        className={`px-2 py-1 text-sm rounded-full font-semibold ${statusColors[servico.status]}`}
+                                    >
+                                        {servico.status}
+                                    </span>
+                                </div>
+                                <span className={`transform transition-transform duration-300 ${open ? "rotate-180" : ""}`}>
+                                    ▼
+                                </span>
+                            </button>
+
+                            <div
+                                className={`px-6 pt-0 pb-4 text-gray-700 dark:text-gray-300 transition-all duration-300 ease-in-out overflow-hidden ${open ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+                                    }`}
+                            >
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                                    <div>
+                                        <strong>Cliente:</strong> {servico.cliente}
+                                    </div>
+                                    <div>
+                                        <strong>Telefone:</strong> {formatPhone(servico.telefone)}
+                                    </div>
+                                    <div>
+                                        <strong>Veículo:</strong> {servico.veiculo} ({servico.placa})
+                                    </div>
+                                    <div>
+                                        <strong>Orçamento:</strong> {formatCurrency(servico.orcamento)}
+                                    </div>
+                                    <div>
+                                        <strong>Data Entrada:</strong>{" "}
+                                        {formatDate(servico.dataEntrada)}
+                                    </div>
+                                    {servico.dataConclusao && (
+                                        <div>
+                                            <strong>Data Conclusão:</strong>{" "}
+                                            {new Date(servico.dataConclusao).toLocaleDateString()}
+                                        </div>
+                                    )}
+                                    <div>
+                                        <strong>Funcionário:</strong> {servico.funcionario_nome}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })
+            ) : (
+                <div className="text-center">
+                    <div className="text-gray-600 dark:text-gray-300 italic">Nenhum serviço encontrado!</div>
+                </div>
+            )}
+        </div>
+    );
+}
+
 
 export default function Home() {
     useEffect(() => {
@@ -51,6 +213,62 @@ export default function Home() {
 
     const [modalOpen, setModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState({ title: "", body: null });
+
+    const [agendamentos, setAgendamentos] = useState([]);
+
+    useEffect(() => {
+        getServicos();
+    }, []);
+    async function getServicos() {
+        const res = await fetch("/api/servicos");
+        const data = await res.json();
+        const normalizados = data.map(item => ({
+            id: item.servico_id,
+            cliente: item.cliente_nome,
+            telefone: item.cliente_telefone,
+            servico: item.descricao,
+            status: item.status,
+            dataEntrada: item.data_entrada,
+            dataConclusao: item.data_conclusao,
+            veiculo: `${item.marca} ${item.modelo}`,
+            marca: item.marca,
+            modelo: item.modelo,
+            ano: item.ano,
+            placa: item.placa,
+            orcamento: item.orcamento,
+            custoFinal: item.custo_final,
+            atualizadoEm: item.atualizado_em,
+            cep: item.cep,
+            logradouro: item.logradouro,
+            numero: item.numero,
+            bairro: item.bairro,
+            cidade: item.cidade,
+            estado: item.estado,
+            funcionario_nome: item.funcionario_nome
+        }));
+
+        setAgendamentos(normalizados);
+    };
+
+    function gerarResumo(servicos, statusColors) {
+        const resumo = Object.keys(statusColors).reduce((acc, status) => {
+            acc[status] = 0;
+            return acc;
+        }, {});
+
+        servicos.forEach(servico => {
+            if (resumo[servico.status] !== undefined) {
+                resumo[servico.status]++;
+            }
+        });
+
+        return Object.entries(resumo).map(([status, value]) => ({
+            title: `Serviços ${status.toLowerCase()}`,
+            value
+        }));
+    }
+
+    const resumoDinamico = gerarResumo(agendamentos, statusColors);
 
     const handleFinalizar = (item) => {
         setModalContent({
@@ -84,7 +302,11 @@ export default function Home() {
                         />
                     </svg>
                     <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Tem certeza que deseja concluir o agendamento de {item.cliente}?</h3>
-                    <button type="button" className="cursor-pointer w-full text-white bg-blue-700 hover:bg-blue-800 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center flex justify-center">
+                    <button
+                        type="button"
+                        className="cursor-pointer w-full text-white bg-blue-700 hover:bg-blue-800 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center flex justify-center"
+                        onClick={() => updateStatus(item.id, "Concluido")}
+                    >
                         Sim, concluir!
                     </button>
                 </div>
@@ -107,7 +329,11 @@ export default function Home() {
                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
                     <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Tem certeza que deseja cancelar o agendamento de {item.cliente}?</h3>
-                    <button type="button" className="cursor-pointer w-full text-white bg-blue-700 hover:bg-blue-800 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center flex justify-center">
+                    <button
+                        type="button"
+                        className="cursor-pointer w-full text-white bg-blue-700 hover:bg-blue-800 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center flex justify-center"
+                        onClick={() => updateStatus(item.id, "Cancelado")}
+                    >
                         Sim, cancelar!
                     </button>
                 </div>
@@ -120,15 +346,76 @@ export default function Home() {
     const handleCardClick = (item) => {
         setModalContent({
             title: (
-                <span>{item.title}</span>
+                <span>
+                    <span className="text-blue-400">Visualizar agendamento!</span>
+                </span>
             ),
             body: (
-                <div>Teste</div>
+                <ServiceViewModal row={item} />
             ),
             size: "xlarge",
         });
         setModalOpen(true);
     };
+
+    const statusMap = {
+        "Serviços pendente": "Pendente",
+        "Serviços em andamento": "Em andamento",
+        "Serviços aguardando peças": "Aguardando peças",
+        "Serviços concluido": "Concluido",
+        "Serviços cancelado": "Cancelado",
+    };
+
+    const handleViewList = (item) => {
+        const statusFiltrar = statusMap[item.title];
+        const lista = agendamentos.filter(
+            (agendamento) => agendamento.status === statusFiltrar
+        );
+
+        setModalContent({
+            title: (
+                <span>
+                    <span className="text-blue-400">{item.title}!</span>
+                </span>
+            ),
+            body: <ServicoAccordion lista={lista} />,
+            size: "large",
+        });
+
+        setModalOpen(true);
+    };
+
+    const updateStatus = async (servico_id, novoStatus) => {
+        try {
+            const res = await fetch("/api/servicos/status", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ servico_id, status: novoStatus }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                toast.error(data.error || "Erro ao atualizar status");
+                return;
+            }
+
+            toast.success(data.message || "Status atualizado com sucesso!");
+
+            setAgendamentos((prev) =>
+                prev.map((agendamento) =>
+                    agendamento.id === servico_id
+                        ? { ...agendamento, status: novoStatus, dataConclusao: data.data_conclusao }
+                        : agendamento
+                )
+            );
+
+            setModalOpen(false);
+        } catch (err) {
+            console.error("Erro ao atualizar o status:", err);
+            toast.error("Erro ao atualizar o status!");
+        }
+    }
 
     return (
         <div>
@@ -176,25 +463,31 @@ export default function Home() {
 
                             <div className="px-8 mb-10">
 
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 cursor-pointer">
-                                    {resumo.map((item, index) => (
+                                <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mb-6 cursor-pointer">
+                                    {resumoDinamico.map((item, index) => (
                                         <Card
                                             key={index}
                                             data={item}
-                                            onClick={handleCardClick}
+                                            onClick={handleViewList}
                                         />
                                     ))}
                                 </div>
 
                                 <DataGrid
-                                    title="Agendamentos do Dia"
+                                    title="Registros de serviços"
                                     data={agendamentos}
-                                    filters={{ search: true, status: true }}
-                                    actions={[
-                                        { label: "Finalizar", color: "green", onClick: handleFinalizar },
-                                        { label: "Cancelar", color: "red", onClick: handleCancelar },
-                                    ]}
-                                /*onCardClick={handleCardClick}*/
+                                    filters={{ search: true }}
+                                    actions={(item) => {
+                                        const buttons = [];
+                                        if (item.status !== "Concluido") {
+                                            buttons.push({ label: "Concluir", color: "green", onClick: () => handleFinalizar(item) });
+                                        }
+                                        if (item.status !== "Cancelado") {
+                                            buttons.push({ label: "Cancelar", color: "red", onClick: () => handleCancelar(item) });
+                                        }
+                                        return buttons;
+                                    }}
+                                    onCardClick={handleCardClick}
                                 />
                             </div>
 

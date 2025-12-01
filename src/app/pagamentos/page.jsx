@@ -250,15 +250,6 @@ export default function Servicos() {
                                 </div>
                             </div>
 
-
-
-
-
-
-
-
-
-
                         </section>
                     </div>
                 </div >

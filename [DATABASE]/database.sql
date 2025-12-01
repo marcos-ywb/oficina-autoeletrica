@@ -99,6 +99,7 @@ END$$
 DELIMITER ;
 
 
+/*
 DELIMITER $$
 
 CREATE TRIGGER set_status_update
@@ -118,3 +119,4 @@ BEGIN
 END$$
 
 DELIMITER ;
+*/

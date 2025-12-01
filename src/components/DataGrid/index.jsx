@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Card from "../Card";
 
 import { Dropdown } from "flowbite";
+import "flowbite";
 
 export default function DataGrid({
     title = "",
@@ -109,10 +110,12 @@ export default function DataGrid({
                                     </svg>
                                     {
                                         statusFilter === "" ? "Todos"
-                                            : statusFilter === "pendente" ? "Pendentes"
-                                                : statusFilter === "confirmado" ? "Confirmados"
-                                                    : statusFilter === "cancelado" ? "Cancelados"
-                                                        : "Status"
+                                            : statusFilter === "Pendente" ? "Pendentes"
+                                                : statusFilter === "Em andamento" ? "Em andamento"
+                                                    : statusFilter === "Aguardando peças" ? "Aguardando peças"
+                                                        : statusFilter === "Concluido" ? "Concluido"
+                                                            : statusFilter === "Cancelado" ? "Cancelado"
+                                                                : "Status"
                                     }
                                 </button>
 
@@ -121,11 +124,14 @@ export default function DataGrid({
                                     className="hidden absolute right-0 mt-2 z-10 w-44 bg-white rounded-lg shadow dark:bg-gray-700"
                                 >
                                     <ul className="py-1 text-sm text-gray-700 dark:text-gray-200">
-                                        {["", "pendente", "confirmado", "cancelado"].map(
+                                        {["", "Pendente", "Em andamento", "Aguardando peças", "Concluido", "Cancelado"].map(
                                             (status) => (
                                                 <li key={status}>
                                                     <a
-                                                        onClick={() => handleStatusFilter(status, "statusFilterDropdown", "statusFilterDropdownButton")}
+                                                        onClick={() => {
+                                                            console.log(status);
+                                                            handleStatusFilter(status, "statusFilterDropdown", "statusFilterDropdownButton")
+                                                        }}
                                                         className={`block py-2 px-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 ${statusFilter === status
                                                             ? "bg-gray-100 dark:bg-gray-600 dark:text-white"
                                                             : ""
@@ -173,7 +179,7 @@ export default function DataGrid({
                         <Card
                             key={index}
                             data={item}
-                            actions={actions}
+                            actions={typeof actions === "function" ? actions(item) : actions}
                             onClick={onCardClick}
                         />
                     ))
